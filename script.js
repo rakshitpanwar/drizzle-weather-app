@@ -1,33 +1,45 @@
 document.addEventListener("DOMContentLoaded", () => {
   const cityInput = document.getElementById("city-input");
   const getWeatherBtn = document.getElementById("get-weather-btn");
-  const weatherInfo = document.getElementById("weather-info");
-  const cityNameDisplay = document.getElementById("city-name");
-  const weatherIconDisplay = document.getElementById("weather-icon");
-  const temperatureDisplay = document.getElementById("temperature");
-  const descriptionDisplay = document.getElementById("description");
-  const feelsLikeDisplay = document.getElementById("feels-like");
-  const humidityDisplay = document.getElementById("humidity");
-  const windSpeedDisplay = document.getElementById("wind-speed");
   const errorMessage = document.getElementById("error-message");
   const loadingIndicator = document.getElementById("loading");
   const unitToggleBtn = document.getElementById("unit-toggle");
-  const recentSearchesContainer = document.getElementById("recent-searches");
   const suggestionsList = document.getElementById("suggestions-list");
-  const topPanel = document.querySelector(".top-panel");
-  const forecastPanel = document.getElementById("forecast-panel");
-  const hourlyList = document.getElementById("hourly-list");
-  const dailyList = document.getElementById("daily-list");
-  const dateDisplay = document.getElementById("date-display");
-  const chanceOfRainDisplay = document.getElementById("chance-of-rain");
 
-  const API_KEY = "f7c66987f52ac66f5e18bb83b2d1e8ba"; //not a safe way to store, but for now its fine
+  // DOM Elements - Weather Primary
+  const cityNameDisplay = document.getElementById("city-name-display");
+  const temperatureDisplay = document.getElementById("temperature-display");
+  const feelsLikeDisplay = document.getElementById("feels-like-display");
+  const visibilityDisplay = document.getElementById("visibility-display");
+  const humidityDisplay = document.getElementById("humidity-display");
+  const weatherIconDisplay = document.getElementById("weather-icon-display");
+
+  // DOM Elements - Map Card
+  const mapDay = document.getElementById("map-day");
+  const mapCond = document.getElementById("map-cond");
+  const mapTemp = document.querySelector(".mo-temp");
+
+  // DOM Elements - Dark Humidity Card
+  const darkHumidityDisplay = document.getElementById("dark-humidity-display");
+
+  // DOM Elements - Hourly Chart
+  const tempMorning = document.getElementById("temp-morning");
+  const tempAfternoon = document.getElementById("temp-afternoon");
+  const tempEvening = document.getElementById("temp-evening");
+  const tempNight = document.getElementById("temp-night");
+
+  // DOM Elements - Tomorrow Card
+  const tomorrowCity = document.getElementById("tomorrow-city");
+  const tomorrowTemp = document.getElementById("tomorrow-temp");
+  const tomorrowCond = document.getElementById("tomorrow-cond");
+
+  const API_KEY = "f7c66987f52ac66f5e18bb83b2d1e8ba";
   let isMetric = true;
-  let recentSearches = JSON.parse(localStorage.getItem('weatherRecentSearches')) || [];
+  let currentCity = "Dhaka"; // Default
 
   // Initialize
-  renderRecentSearches();
   getUserLocation();
+  fetchSecondaryCities();
 
   let debounceTimer;
 
@@ -39,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
   cityInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      // If suggestions are visible, select the first one
       if (!suggestionsList.classList.contains("hidden") && suggestionsList.children.length > 0) {
         suggestionsList.children[0].click();
       } else {
@@ -52,18 +63,15 @@ document.addEventListener("DOMContentLoaded", () => {
   cityInput.addEventListener("input", (e) => {
     clearTimeout(debounceTimer);
     const query = e.target.value.trim();
-    
     if (query.length < 3) {
       suggestionsList.classList.add("hidden");
       return;
     }
-    
     debounceTimer = setTimeout(() => {
       fetchCitySuggestions(query);
-    }, 500); // 500ms debounce
+    }, 500);
   });
   
-  // Hide suggestions when clicking outside
   document.addEventListener("click", (e) => {
     if (!e.target.closest('.search-wrapper')) {
       suggestionsList.classList.add("hidden");
@@ -72,31 +80,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   unitToggleBtn.addEventListener("click", () => {
     isMetric = !isMetric;
-    unitToggleBtn.textContent = isMetric ? "°C" : "°F";
-    const currentCity = cityNameDisplay.textContent;
-    if (currentCity) handleSearch(currentCity); // Refetch with new unit
+    if (currentCity) handleSearch(currentCity);
+    fetchSecondaryCities();
   });
 
   async function handleSearch(city) {
-    if (!city || city.length < 3) return; // Prevent partial searches
-
+    if (!city || city.length < 3) return;
     suggestionsList.classList.add("hidden");
     showLoading();
 
     try {
       const weatherData = await fetchWeatherData(city);
       const forecastData = await fetchForecastData(city);
-      displayWeatherData(weatherData, forecastData);
-      displayHourlyForecast(forecastData);
-      displayDailyForecast(forecastData);
-      saveRecentSearch(weatherData.name);
       
-      // Success, hide loading and show info
+      currentCity = weatherData.name;
+      
+      populateCurrentWeather(weatherData);
+      populateForecastData(forecastData);
+      
       loadingIndicator.classList.add("hidden");
-      weatherInfo.classList.remove("hidden");
-      forecastPanel.classList.remove("hidden");
-      errorMessage.classList.add("hidden");
-      
     } catch (error) {
       console.error(error);
       showError();
@@ -133,221 +135,143 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderSuggestions(cities) {
     suggestionsList.innerHTML = '';
-    
     if (cities.length === 0) {
       suggestionsList.classList.add("hidden");
       return;
     }
-
     cities.forEach(city => {
       const li = document.createElement('li');
-      // Format: "City Name, State (if exists) Country Code"
-      const locationString = [city.name, city.state].filter(Boolean).join(', ');
-      
-      li.innerHTML = `<span>${locationString}</span> <span class="country">${city.country}</span>`;
-      
+      const locationString = [city.name, city.state, city.country].filter(Boolean).join(', ');
+      li.innerHTML = `<span>${locationString}</span>`;
       li.addEventListener('click', () => {
         cityInput.value = city.name;
         suggestionsList.classList.add("hidden");
         handleSearch(city.name);
       });
-      
       suggestionsList.appendChild(li);
     });
-    
     suggestionsList.classList.remove("hidden");
   }
 
-  function displayWeatherData(weatherData, forecastData) {
-    const { name, main, weather, wind } = weatherData;
+  function populateCurrentWeather(data) {
+    const { name, main, weather, visibility } = data;
+    
     cityNameDisplay.textContent = name;
+    temperatureDisplay.textContent = `${Math.round(main.temp)}°C`;
+    feelsLikeDisplay.textContent = `Feels like ${Math.round(main.feels_like)}°C`;
     
-    // Set Date
-    const date = new Date();
-    const options = { weekday: 'long', day: 'numeric', month: 'long' };
-    dateDisplay.textContent = date.toLocaleDateString('en-GB', options);
+    const visKm = visibility ? (visibility / 1000).toFixed(1) : 10;
+    visibilityDisplay.textContent = `${visKm} Km`;
+    humidityDisplay.textContent = `${main.humidity}%`;
     
-    // Icon - Map to 3D like icons or high-res
+    darkHumidityDisplay.textContent = `${main.humidity}%`;
+    
     const iconCode = weather[0].icon;
     weatherIconDisplay.src = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
     
-    const unitSymbol = isMetric ? '' : ''; // Symbol is hardcoded in HTML for premium look
-    const speedUnit = isMetric ? 'km/h' : 'mph';
-    const speedMultiplier = isMetric ? 3.6 : 1; // convert m/s to km/h for metric
+    // Map Overlay
+    const date = new Date();
+    mapDay.textContent = date.toLocaleDateString('en-US', { weekday: 'long' });
+    mapCond.textContent = weather[0].main;
+    mapTemp.textContent = `${Math.round(main.temp)}°C`;
     
-    temperatureDisplay.textContent = `${Math.round(main.temp)}`;
-    descriptionDisplay.textContent = `${weather[0].description}`;
-    
-    // Details
-    humidityDisplay.textContent = `${main.humidity}%`;
-    windSpeedDisplay.textContent = `${Math.round(wind.speed * speedMultiplier)} ${speedUnit}`;
-    
-    // Chance of Rain (from first forecast item)
-    const pop = forecastData && forecastData.list[0] ? Math.round(forecastData.list[0].pop * 100) : 0;
-    chanceOfRainDisplay.textContent = `${pop}%`;
-    
-    // Update Dynamic Background
-    updateBackground(weather[0].main);
+    // Tomorrow Card City
+    tomorrowCity.textContent = name;
   }
 
-  function displayHourlyForecast(data) {
-    hourlyList.innerHTML = '';
-    // Take first 8 items (24 hours)
-    const hourlyData = data.list.slice(0, 8);
+  function populateForecastData(data) {
+    // We want Morning (~09:00), Afternoon (~15:00), Evening (~18:00), Night (~21:00) for today
+    // OpenWeather API returns every 3 hours. 
+    // We'll just grab the first 4 available slots and loosely map them for this polished look
+    const nextHours = data.list.slice(0, 4);
     
-    hourlyData.forEach((hour, index) => {
-      const date = new Date(hour.dt * 1000);
-      const timeString = index === 0 ? 'Now' : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const iconCode = hour.weather[0].icon;
-      const temp = Math.round(hour.main.temp);
+    if (nextHours[0]) tempMorning.textContent = `${Math.round(nextHours[0].main.temp)}°`;
+    if (nextHours[1]) tempAfternoon.textContent = `${Math.round(nextHours[1].main.temp)}°`;
+    if (nextHours[2]) tempEvening.textContent = `${Math.round(nextHours[2].main.temp)}°`;
+    if (nextHours[3]) tempNight.textContent = `${Math.round(nextHours[3].main.temp)}°`;
 
-      const el = document.createElement('div');
-      el.classList.add('hourly-item');
-      if (index === 0) el.classList.add('active');
-      
-      el.innerHTML = `
-        <span class="time">${timeString}</span>
-        <img src="https://openweathermap.org/img/wn/${iconCode}.png" alt="icon">
-        <span class="temp">${temp}°</span>
-      `;
-      hourlyList.appendChild(el);
-    });
-  }
+    // Tomorrow (Find item roughly 24 hours from now)
+    const tomorrowData = data.list.find(item => {
+      const today = new Date().getDay();
+      const itemDay = new Date(item.dt * 1000).getDay();
+      return itemDay !== today && item.dt_txt.includes("12:00:00");
+    }) || data.list[8]; // fallback to 8th item (24hrs later)
 
-  function displayDailyForecast(data) {
-    dailyList.innerHTML = '';
-    
-    // Group by day to get min/max
-    const dailyMap = new Map();
-    
-    data.list.forEach(item => {
-      const date = new Date(item.dt * 1000);
-      const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-      
-      if (!dailyMap.has(day)) {
-        dailyMap.set(day, {
-          min: item.main.temp_min,
-          max: item.main.temp_max,
-          iconCode: item.weather[0].icon,
-          desc: item.weather[0].main
-        });
-      } else {
-        const current = dailyMap.get(day);
-        current.min = Math.min(current.min, item.main.temp_min);
-        current.max = Math.max(current.max, item.main.temp_max);
-      }
-    });
-
-    const dailyArray = Array.from(dailyMap).slice(1, 6); // Skip today if it's there
-    
-    // We add a class then quickly remove it to trigger CSS animations again
-    document.body.classList.add('anim-reset');
-    
-    dailyArray.forEach(([day, info]) => {
-      const el = document.createElement('div');
-      el.classList.add('daily-item');
-      el.innerHTML = `
-        <span class="day">${day}</span>
-        <div class="cond-box">
-           <img src="https://openweathermap.org/img/wn/${info.iconCode}.png" alt="icon">
-           <span class="desc">${info.desc}</span>
-        </div>
-        <div class="temps">
-           <span class="temp-max">+${Math.round(info.max)}°</span>
-           <span class="temp-min">+${Math.round(info.min)}°</span>
-        </div>
-      `;
-      dailyList.appendChild(el);
-    });
-    
-    // Remove reset class to allow animations to run
-    setTimeout(() => {
-      document.body.classList.remove('anim-reset');
-    }, 50);
-  }
-
-  function updateBackground(weatherMain) {
-    topPanel.className = 'weather-panel top-panel'; // reset
-    const validBackgrounds = ['Clear', 'Clouds', 'Rain', 'Drizzle', 'Thunderstorm', 'Snow'];
-    if (validBackgrounds.includes(weatherMain)) {
-      topPanel.classList.add(`bg-${weatherMain}`);
+    if (tomorrowData) {
+      tomorrowTemp.textContent = `${Math.round(tomorrowData.main.temp)}°C`;
+      tomorrowCond.textContent = tomorrowData.weather[0].main;
     }
   }
 
-  function showLoading() {
-    weatherInfo.classList.add("hidden");
-    forecastPanel.classList.add("hidden");
-    errorMessage.classList.add("hidden");
-    loadingIndicator.classList.remove("hidden");
-  }
-
-  function showError() {
-    loadingIndicator.classList.add("hidden");
-    weatherInfo.classList.add("hidden");
-    forecastPanel.classList.add("hidden");
-    errorMessage.classList.remove("hidden");
-  }
-
-  // 👇 Added Level 2 functions
-  function saveRecentSearch(city) {
-    if (!recentSearches.includes(city)) {
-      recentSearches.unshift(city);
-      if (recentSearches.length > 5) recentSearches.pop(); // Keep only last 5
-      localStorage.setItem('weatherRecentSearches', JSON.stringify(recentSearches));
-      renderRecentSearches();
+  async function fetchSecondaryCities() {
+    try {
+      const [nyData, lonData] = await Promise.all([
+        fetchWeatherData("New York"),
+        fetchWeatherData("London")
+      ]);
+      
+      updateMiniCard("city-1", nyData);
+      updateMiniCard("city-2", lonData);
+    } catch (e) {
+      console.log("Failed secondary cities", e);
     }
   }
 
-  function renderRecentSearches() {
-    recentSearchesContainer.innerHTML = '';
-    recentSearches.forEach(city => {
-      const chip = document.createElement('span');
-      chip.classList.add('recent-search-chip');
-      chip.textContent = city;
-      chip.addEventListener('click', () => handleSearch(city));
-      recentSearchesContainer.appendChild(chip);
-    });
+  function updateMiniCard(elementId, data) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    
+    el.querySelector('.mc-name').textContent = data.name;
+    el.querySelector('.mc-cond').textContent = data.weather[0].main;
+    el.querySelector('.mc-high').textContent = `${Math.round(data.main.temp_max)}°C`;
+    el.querySelector('.mc-low').textContent = `/${Math.round(data.main.temp_min)}°C`;
+    el.querySelector('img').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
   }
 
   function getUserLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          showLoading();
-          const { latitude, longitude } = position.coords;
-          const units = isMetric ? 'metric' : 'imperial';
-          const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=${units}&appid=${API_KEY}`;
-          const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=${units}&appid=${API_KEY}`;
-          
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
           try {
-            const [weatherRes, forecastRes] = await Promise.all([
-              fetch(weatherUrl),
-              fetch(forecastUrl)
-            ]);
-            
-            if (!weatherRes.ok || !forecastRes.ok) throw new Error("Location fetch failed");
-            
+            showLoading();
+            const units = isMetric ? 'metric' : 'imperial';
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${API_KEY}`;
+            const weatherRes = await fetch(url);
             const weatherData = await weatherRes.json();
+            
+            const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${units}&appid=${API_KEY}`;
+            const forecastRes = await fetch(forecastUrl);
             const forecastData = await forecastRes.json();
             
-            displayWeatherData(weatherData, forecastData);
-            displayHourlyForecast(forecastData);
-            displayDailyForecast(forecastData);
+            currentCity = weatherData.name;
+            populateCurrentWeather(weatherData);
+            populateForecastData(forecastData);
             
             loadingIndicator.classList.add("hidden");
-            weatherInfo.classList.remove("hidden");
-            forecastPanel.classList.remove("hidden");
           } catch (error) {
             console.error(error);
             showError();
           }
         },
-        (error) => {
-          console.log("Geolocation denied or failed.", error);
-          // Just let the user type a city manually if they deny
+        () => {
+          // If denied, fallback to default city
+          handleSearch(currentCity);
         }
       );
+    } else {
+      handleSearch(currentCity);
     }
   }
-  
+
+  function showLoading() {
+    loadingIndicator.classList.remove("hidden");
+  }
+
+  function showError() {
+    loadingIndicator.classList.add("hidden");
+    errorMessage.classList.remove("hidden");
+  }
+
 });
