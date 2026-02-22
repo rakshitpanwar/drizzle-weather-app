@@ -276,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
       case 5: aqiText = "Very Poor"; break;
       default: aqiText = "Unknown";
     }
-    if(darkAqiDisplay) darkAqiDisplay.textContent = `${aqiText} Air Quality`;
+    if(darkAqiDisplay) darkAqiDisplay.textContent = `AQI: ${aqiIndex} (${aqiText})`;
   }
 
   function populateForecastData(data) {
