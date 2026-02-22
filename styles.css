@@ -375,3 +375,98 @@ body {
   border-radius: 10px;
   margin-top: 20px;
 }
+
+/* 👇 Added Level 5 UX Enhancements */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: stretch;
+  left: 0;
+  width: 100%;
+  background: rgba(16, 21, 31, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  list-style: none;
+  padding: 5px 0;
+  margin-top: 5px;
+  z-index: 100;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestions-list li {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #fff;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggestions-list li:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.suggestions-list li span.country {
+  font-size: 11px;
+  color: #8fa0b5;
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+/* Scrollbar for suggestions */
+.suggestions-list::-webkit-scrollbar {
+  width: 6px;
+}
+.suggestions-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+/* Animations Staggering */
+.hourly-item, .daily-item, .metric {
+  animation: slideUpFade 0.6s ease forwards;
+  opacity: 0;
+}
+
+/* Stagger metric entrance */
+.metric:nth-child(1) { animation-delay: 0.1s; }
+.metric:nth-child(2) { animation-delay: 0.2s; }
+.metric:nth-child(3) { animation-delay: 0.3s; }
+
+/* Stagger hourly entrance */
+.hourly-item:nth-child(1) { animation-delay: 0.4s; }
+.hourly-item:nth-child(2) { animation-delay: 0.45s; }
+.hourly-item:nth-child(3) { animation-delay: 0.5s; }
+.hourly-item:nth-child(4) { animation-delay: 0.55s; }
+.hourly-item:nth-child(5) { animation-delay: 0.6s; }
+.hourly-item:nth-child(6) { animation-delay: 0.65s; }
+.hourly-item:nth-child(7) { animation-delay: 0.7s; }
+.hourly-item:nth-child(8) { animation-delay: 0.75s; }
+
+/* Stagger daily entrance */
+.daily-item:nth-child(1) { animation-delay: 0.5s; }
+.daily-item:nth-child(2) { animation-delay: 0.6s; }
+.daily-item:nth-child(3) { animation-delay: 0.7s; }
+.daily-item:nth-child(4) { animation-delay: 0.8s; }
+.daily-item:nth-child(5) { animation-delay: 0.9s; }
+
+@keyframes slideUpFade {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Reset animation on dynamic content load */
+.anim-reset .hourly-item, 
+.anim-reset .daily-item, 
+.anim-reset .metric {
+  animation: none;
+}

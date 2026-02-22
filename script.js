@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadingIndicator = document.getElementById("loading");
   const unitToggleBtn = document.getElementById("unit-toggle");
   const recentSearchesContainer = document.getElementById("recent-searches");
+  const suggestionsList = document.getElementById("suggestions-list");
   const topPanel = document.querySelector(".top-panel");
   const forecastPanel = document.getElementById("forecast-panel");
   const hourlyList = document.getElementById("hourly-list");
@@ -28,10 +29,36 @@ document.addEventListener("DOMContentLoaded", () => {
   renderRecentSearches();
   getUserLocation();
 
+  let debounceTimer;
+
   getWeatherBtn.addEventListener("click", () => handleSearch(cityInput.value.trim()));
 
-  cityInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") handleSearch(cityInput.value.trim());
+  cityInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      suggestionsList.classList.add("hidden");
+      handleSearch(cityInput.value.trim());
+    }
+  });
+
+  cityInput.addEventListener("input", (e) => {
+    clearTimeout(debounceTimer);
+    const query = e.target.value.trim();
+    
+    if (query.length < 3) {
+      suggestionsList.classList.add("hidden");
+      return;
+    }
+    
+    debounceTimer = setTimeout(() => {
+      fetchCitySuggestions(query);
+    }, 500); // 500ms debounce
+  });
+  
+  // Hide suggestions when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest('.search-wrapper')) {
+      suggestionsList.classList.add("hidden");
+    }
   });
 
   unitToggleBtn.addEventListener("click", () => {
@@ -80,6 +107,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const response = await fetch(url);
     if (!response.ok) throw new Error("Forecast not found!");
     return await response.json();
+  }
+
+  async function fetchCitySuggestions(query) {
+    try {
+      const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Could not fetch suggestions");
+      const data = await response.json();
+      renderSuggestions(data);
+    } catch (error) {
+      console.error("Geocoding error:", error);
+    }
+  }
+
+  function renderSuggestions(cities) {
+    suggestionsList.innerHTML = '';
+    
+    if (cities.length === 0) {
+      suggestionsList.classList.add("hidden");
+      return;
+    }
+
+    cities.forEach(city => {
+      const li = document.createElement('li');
+      // Format: "City Name, State (if exists) Country Code"
+      const locationString = [city.name, city.state].filter(Boolean).join(', ');
+      
+      li.innerHTML = `<span>${locationString}</span> <span class="country">${city.country}</span>`;
+      
+      li.addEventListener('click', () => {
+        cityInput.value = city.name;
+        suggestionsList.classList.add("hidden");
+        handleSearch(city.name);
+      });
+      
+      suggestionsList.appendChild(li);
+    });
+    
+    suggestionsList.classList.remove("hidden");
   }
 
   function displayWeatherData(weatherData, forecastData) {
@@ -164,6 +230,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const dailyArray = Array.from(dailyMap).slice(1, 6); // Skip today if it's there
     
+    // We add a class then quickly remove it to trigger CSS animations again
+    document.body.classList.add('anim-reset');
+    
     dailyArray.forEach(([day, info]) => {
       const el = document.createElement('div');
       el.classList.add('daily-item');
@@ -180,6 +249,11 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       dailyList.appendChild(el);
     });
+    
+    // Remove reset class to allow animations to run
+    setTimeout(() => {
+      document.body.classList.remove('anim-reset');
+    }, 50);
   }
 
   function updateBackground(weatherMain) {
