@@ -42,6 +42,38 @@ document.addEventListener("DOMContentLoaded", () => {
   let mapMarker;
   let tempLayer;
 
+  // Dynamic Tomorrow Graphics
+  const tomorrowGraphics = {
+    Clear: {
+      color: "#fef08a", // warm yellow
+      svg: `<svg viewBox="0 0 100 150" class="floating-graphic"><circle cx="50" cy="70" r="30" fill="#f59e0b" filter="drop-shadow(0 8px 16px rgba(245,158,11,0.4))"/><path d="M50 20 v10 M50 110 v10 M20 70 h10 M70 70 h10 M30 50 L35 55 M70 90 L65 85 M30 90 L35 85 M70 50 L65 55" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" class="spin-slow" transform-origin="50 70"/></svg>`
+    },
+    Clouds: {
+      color: "#e2e8f0", // slate light
+      svg: `<svg viewBox="0 0 100 150" class="floating-graphic"><path d="M 25 80 A 15 15 0 0 1 50 70 A 20 20 0 0 1 85 80 A 15 15 0 0 1 75 100 L 35 100 A 15 15 0 0 1 25 80 Z" fill="#ffffff" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.1))"/><circle cx="70" cy="65" r="16" fill="#f59e0b" style="mix-blend-mode: multiply;"/></svg>`
+    },
+    Rain: {
+      color: "#bae6fd", // light blue
+      svg: `<svg viewBox="0 0 100 150" class="floating-graphic"><path d="M 25 70 A 15 15 0 0 1 50 60 A 20 20 0 0 1 85 70 A 15 15 0 0 1 75 90 L 35 90 A 15 15 0 0 1 25 70 Z" fill="#94a3b8" filter="drop-shadow(0 8px 12px rgba(0,0,0,0.15))"/><line x1="40" y1="95" x2="35" y2="105" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round"/><line x1="55" y1="95" x2="50" y2="105" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round"/><line x1="70" y1="95" x2="65" y2="105" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round"/></svg>`
+    },
+    Drizzle: {
+      color: "#e0f2fe", // lighter blue
+      svg: `<svg viewBox="0 0 100 150" class="floating-graphic"><path d="M 25 70 A 15 15 0 0 1 50 60 A 20 20 0 0 1 85 70 A 15 15 0 0 1 75 90 L 35 90 A 15 15 0 0 1 25 70 Z" fill="#cbd5e1" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"/><line x1="45" y1="95" x2="42" y2="102" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/><line x1="65" y1="95" x2="62" y2="102" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/></svg>`
+    },
+    Snow: {
+      color: "#f1f5f9", // almost white
+      svg: `<svg viewBox="0 0 100 150" class="floating-graphic"><path d="M 25 65 A 15 15 0 0 1 50 55 A 20 20 0 0 1 85 65 A 15 15 0 0 1 75 85 L 35 85 A 15 15 0 0 1 25 65 Z" fill="#ffffff" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.05))"/><circle cx="40" cy="95" r="3" fill="#cbd5e1"/><circle cx="55" cy="105" r="4" fill="#cbd5e1"/><circle cx="70" cy="98" r="3" fill="#cbd5e1"/></svg>`
+    },
+    Thunderstorm: {
+      color: "#cbd5e1", // darker slate
+      svg: `<svg viewBox="0 0 100 150" class="floating-graphic"><path d="M 25 70 A 15 15 0 0 1 50 60 A 20 20 0 0 1 85 70 A 15 15 0 0 1 75 90 L 35 90 A 15 15 0 0 1 25 70 Z" fill="#64748b" filter="drop-shadow(0 8px 12px rgba(0,0,0,0.2))"/><polygon points="55,85 45,100 52,100 48,115 65,95 55,95" fill="#f59e0b"/></svg>`
+    },
+    Default: {
+      color: "#d3f3bd", // original green
+      svg: `<svg viewBox="0 0 100 150" class="floating-graphic"><path d="M 30 70 Q 50 60 70 70 T 90 70" stroke="#4a5568" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="50" cy="70" r="10" fill="#f6e5dc"/></svg>`
+    }
+  };
+
   // Initialize
   getUserLocation();
   fetchSecondaryCities();
@@ -239,7 +271,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (tomorrowData) {
       tomorrowTemp.textContent = `${Math.round(tomorrowData.main.temp)}°C`;
-      tomorrowCond.textContent = tomorrowData.weather[0].main;
+      
+      const condition = tomorrowData.weather[0].main;
+      tomorrowCond.textContent = condition;
+      
+      const visual = tomorrowGraphics[condition] || tomorrowGraphics["Default"];
+      
+      // Update tomorrow card dynamically
+      const tCard = document.getElementById("tomorrow-card");
+      if (tCard) tCard.style.background = visual.color;
+      
+      const tIllustration = document.getElementById("tomorrow-illustration");
+      if (tIllustration) tIllustration.innerHTML = visual.svg;
     }
   }
 

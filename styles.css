@@ -553,6 +553,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
+  transition: background 0.8s ease-in-out;
 }
 
 .tc-header {
@@ -571,6 +572,22 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.floating-graphic {
+  width: 100px;
+  animation: float 4s ease-in-out infinite;
+  display: block;
+}
+
+.spin-slow {
+  animation: spinSlow 15s linear infinite;
+  transform-origin: 50% 70%;
+}
+
+@keyframes spinSlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .tc-footer {
