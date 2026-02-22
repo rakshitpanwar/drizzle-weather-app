@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // DOM Elements - Dark Humidity Card
   const darkHumidityDisplay = document.getElementById("dark-humidity-display");
+  const darkAqiDisplay = document.getElementById("dark-aqi-display");
 
   // DOM Elements - Hourly Chart
   const tempMorning = document.getElementById("temp-morning");
@@ -129,11 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const weatherData = await fetchWeatherData(city);
       const forecastData = await fetchForecastData(city);
+      const aqiData = await fetchAqiData(weatherData.coord.lat, weatherData.coord.lon);
       
       currentCity = weatherData.name;
       
       populateCurrentWeather(weatherData);
       populateForecastData(forecastData);
+      populateAqiData(aqiData);
       
       loadingIndicator.classList.add("hidden");
     } catch (error) {
@@ -155,6 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${units}&appid=${API_KEY}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error("Forecast not found!");
+    return await response.json();
+  }
+
+  async function fetchAqiData(lat, lon) {
+    const url = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+    const response = await fetch(url);
+    if (!response.ok) return null;
     return await response.json();
   }
 
@@ -251,6 +261,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function populateAqiData(data) {
+    if (!data || !data.list || data.list.length === 0) {
+      if(darkAqiDisplay) darkAqiDisplay.textContent = "AQI Unavailable";
+      return;
+    }
+    const aqiIndex = data.list[0].main.aqi;
+    let aqiText = "";
+    switch(aqiIndex) {
+      case 1: aqiText = "Good"; break;
+      case 2: aqiText = "Fair"; break;
+      case 3: aqiText = "Moderate"; break;
+      case 4: aqiText = "Poor"; break;
+      case 5: aqiText = "Very Poor"; break;
+      default: aqiText = "Unknown";
+    }
+    if(darkAqiDisplay) darkAqiDisplay.textContent = `${aqiText} Air Quality`;
+  }
+
   function populateForecastData(data) {
     // We want Morning (~09:00), Afternoon (~15:00), Evening (~18:00), Night (~21:00) for today
     // OpenWeather API returns every 3 hours. 
@@ -328,9 +356,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const forecastRes = await fetch(forecastUrl);
             const forecastData = await forecastRes.json();
             
+            const aqiData = await fetchAqiData(lat, lon);
+            
             currentCity = weatherData.name;
             populateCurrentWeather(weatherData);
             populateForecastData(forecastData);
+            populateAqiData(aqiData);
             
             loadingIndicator.classList.add("hidden");
           } catch (error) {
