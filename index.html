@@ -155,17 +155,27 @@
            </article>
         </div>
 
-        <!-- Bottom Middle Left: Humidity/Air Quality Dark Card -->
-        <article class="card dark-card">
-           <h3>Air Quality & Humidity</h3>
-           <div class="dark-content">
-             <div class="dc-text">
-               <span id="dark-aqi-display" class="dc-label">Fetching AQI...</span>
-               <span id="dark-humidity-display" class="dc-massive">--%</span>
+        <!-- Bottom Middle Left: Humidity & Air Quality Dark Cards -->
+        <div class="dark-cards-container">
+           <article class="card dark-card">
+             <h3>Humidity</h3>
+             <div class="dark-content">
+               <div class="dc-text">
+                 <span id="dark-humidity-display" class="dc-massive">--%</span>
+               </div>
+               <img src="https://openweathermap.org/img/wn/09n@2x.png" alt="rain" class="dark-card-img">
              </div>
-             <img src="https://openweathermap.org/img/wn/09n@2x.png" alt="rain" class="dark-card-img">
-           </div>
-        </article>
+           </article>
+           <article class="card dark-card">
+             <h3>Air Quality</h3>
+             <div class="dark-content" style="align-items: center;">
+               <div class="dc-text">
+                 <span id="dark-aqi-display" class="dc-massive" style="font-size: 20px;">Fetching...</span>
+               </div>
+               <svg viewBox="0 0 24 24" class="dark-card-img scale-image" fill="none" stroke="currentColor" stroke-width="2" style="width: 40px; margin-right: 15px; opacity: 0.8;"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+             </div>
+           </article>
+        </div>
 
         <!-- Bottom Middle Right: Hourly Today Chart -->
         <article class="card hourly-chart-card">
