@@ -31,12 +31,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let debounceTimer;
 
-  getWeatherBtn.addEventListener("click", () => handleSearch(cityInput.value.trim()));
+  getWeatherBtn.addEventListener("click", () => {
+    suggestionsList.classList.add("hidden");
+    handleSearch(cityInput.value.trim());
+  });
 
   cityInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      suggestionsList.classList.add("hidden");
-      handleSearch(cityInput.value.trim());
+      e.preventDefault();
+      // If suggestions are visible, select the first one
+      if (!suggestionsList.classList.contains("hidden") && suggestionsList.children.length > 0) {
+        suggestionsList.children[0].click();
+      } else {
+        suggestionsList.classList.add("hidden");
+        handleSearch(cityInput.value.trim());
+      }
     }
   });
 
@@ -69,8 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   async function handleSearch(city) {
-    if (!city) return;
+    if (!city || city.length < 3) return; // Prevent partial searches
 
+    suggestionsList.classList.add("hidden");
     showLoading();
 
     try {
