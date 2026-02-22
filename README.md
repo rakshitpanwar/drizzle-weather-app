@@ -7,6 +7,8 @@ A visually stunning, desktop-first weather dashboard built with Vanilla HTML, CS
 ## ✨ Features
 
 - **Full-Screen CSS Grid Architecture**: A responsive, 12-column layout that elegantly handles multiple complex data visualization cards simultaneously.
+- **Interactive Leaflet Map**: A live, draggable map container integrated with `Leaflet.js` that `flyTo()` animates to searched coordinates, featuring a custom OpenWeatherMap Temperature tile overlay visualizing global thermal hotspots.
+- **Dynamic Premium Graphics**: Handcrafted, context-aware SVG artwork for the "Tomorrow" forecast. The card's background color and CSS `@keyframes` (spinning suns, floating clouds) adapt smoothly via `0.8s` transitions based on the exact weather condition (Clear, Rain, Snow, Thunderstorm).
 - **Intelligent Autocomplete Search**: Seamless integration with the OpenWeather Geocoding API, offering debounced, live city/country suggestions as you type.
 - **Advanced Forecast Parsing**: Custom JavaScript algorithms map the 3-hour forecast chunks specifically into "Morning", "Afternoon", "Evening", and "Night" visualization periods for intuitive reading.
 - **Live Secondary Feeds**: Automatically fetches parallel data streams for major global cities (New York, London) to populate background cards dynamically.
@@ -16,6 +18,7 @@ A visually stunning, desktop-first weather dashboard built with Vanilla HTML, CS
 ## 🛠️ Tech Stack
 
 - **Frontend Core**: HTML5, Vanilla JavaScript (ES6+), CSS3
+- **Mapping Engine**: [Leaflet.js](https://leafletjs.com/)
 - **Layout Systems**: Advanced CSS Grid & Flexbox
 - **APIs**: [OpenWeatherMap API](https://openweathermap.org/api) (Current Weather, 5-Day Forecast, Geocoding)
 - **Typography**: [Nunito Font](https://fonts.google.com/specimen/Nunito)
