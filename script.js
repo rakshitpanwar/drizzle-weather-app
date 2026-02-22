@@ -36,6 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const API_KEY = "f7c66987f52ac66f5e18bb83b2d1e8ba";
   let isMetric = true;
   let currentCity = "Dhaka"; // Default
+  
+  // Map Variables
+  let weatherMap;
+  let mapMarker;
+  let tempLayer;
 
   // Initialize
   getUserLocation();
@@ -175,8 +180,43 @@ document.addEventListener("DOMContentLoaded", () => {
     mapCond.textContent = weather[0].main;
     mapTemp.textContent = `${Math.round(main.temp)}°C`;
     
+    // Map Location Update
+    if (data.coord) {
+      updateMapLocation(data.coord.lat, data.coord.lon, name);
+    }
+    
     // Tomorrow Card City
     tomorrowCity.textContent = name;
+  }
+
+  function initMap(lat, lon, cityName) {
+    weatherMap = L.map('weather-map', { zoomControl: false }).setView([lat, lon], 10);
+    L.control.zoom({ position: 'bottomright' }).addTo(weatherMap);
+
+    // Standard OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(weatherMap);
+
+    // OpenWeatherMap Temperature Layer
+    tempLayer = L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${API_KEY}`, {
+      maxZoom: 19,
+      opacity: 0.6
+    }).addTo(weatherMap);
+
+    mapMarker = L.marker([lat, lon]).addTo(weatherMap)
+      .bindPopup(`<b>${cityName}</b>`)
+      .openPopup();
+  }
+
+  function updateMapLocation(lat, lon, cityName) {
+    if (!weatherMap) {
+      initMap(lat, lon, cityName);
+    } else {
+      weatherMap.flyTo([lat, lon], 10, { duration: 1.5 });
+      mapMarker.setLatLng([lat, lon]).setPopupContent(`<b>${cityName}</b>`).openPopup();
+    }
   }
 
   function populateForecastData(data) {

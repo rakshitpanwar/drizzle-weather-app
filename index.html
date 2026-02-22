@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- Leaflet CSS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -112,24 +115,17 @@
           </div>
         </article>
 
-        <!-- Top Right: Map Visual -->
+        <!-- Top Right: Interactive Map -->
         <article class="card map-card">
-           <div class="map-bg"></div>
-           <!-- Dynamic pins will be injected here by JS later -->
+           <div id="weather-map"></div>
+           
+           <!-- Overlay info floats above map -->
            <div class="map-overlay-info">
              <span class="mo-temp">25°C</span>
              <div class="mo-text">
                <span class="mo-day" id="map-day">Monday</span>
                <span class="mo-cond" id="map-cond">Mostly Sunny</span>
              </div>
-           </div>
-           
-           <div class="map-controls">
-             <button class="map-btn">+</button>
-             <button class="map-btn">-</button>
-             <button class="map-btn map-reset">
-               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
-             </button>
            </div>
         </article>
 
@@ -240,6 +236,8 @@
     </main>
   </div>
 
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="script.js"></script>
 </body>
 </html>
