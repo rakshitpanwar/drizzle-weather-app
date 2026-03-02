@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium Weather Dashboard</title>
+  <title>Drizzle — Weather Dashboard</title>
   
   <!-- Modern Font: Nunito -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,13 +50,23 @@
       
       <!-- Top Header -->
       <header class="dashboard-header">
-        <div class="user-profile">
-          <img src="https://i.pravatar.cc/150?img=11" alt="Profile avatar" class="avatar">
-          <div class="user-info">
-            <span class="greeting">Hello,</span>
-            <span class="name">Sajibur Rahman</span>
-          </div>
-        </div>
+        <a href="javascript:location.reload()" class="brand-logo" title="Refresh">
+          <svg class="brand-icon" viewBox="0 0 64 48" width="38" height="30" fill="none">
+            <!-- Sun behind cloud -->
+            <circle class="logo-sun" cx="44" cy="16" r="12" fill="#f59e0b"/>
+            <!-- Sun rays -->
+            <g class="logo-rays" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round">
+              <line x1="44" y1="0" x2="44" y2="4"/>
+              <line x1="56" y1="4" x2="53.5" y2="6.5"/>
+              <line x1="60" y1="16" x2="56" y2="16"/>
+              <line x1="56" y1="28" x2="53.5" y2="25.5"/>
+              <line x1="32" y1="4" x2="34.5" y2="6.5"/>
+            </g>
+            <!-- Cloud in front -->
+            <path class="logo-cloud" d="M14 38 A12 12 0 0 1 20 18 A14 14 0 0 1 46 20 A10 10 0 0 1 50 38 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+          </svg>
+          <span class="brand-name">Drizzle</span>
+        </a>
 
         <div class="search-wrapper">
           <div class="input-container">
@@ -69,8 +79,10 @@
         </div>
 
         <div class="header-actions">
-           <button class="icon-btn" id="unit-toggle" title="Toggle C/F">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+           <button class="unit-toggle-btn" id="unit-toggle" title="Toggle C/F">
+            <div class="ut-thumb"></div>
+            <span class="ut-label active">°C</span>
+            <span class="ut-label">°F</span>
            </button>
            <button class="icon-btn">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -100,6 +112,7 @@
           <div class="wp-footer">
             <div class="temp-block">
               <span id="temperature-display" class="huge-temp">25°C</span>
+              <span id="weather-condition-display" class="weather-condition">Partly Cloudy</span>
               <span id="feels-like-display" class="feels-like">Feels like 26°C</span>
             </div>
             <div class="metrics-boxes">
@@ -132,7 +145,7 @@
         <!-- Bottom Left Column: Mini Cities -->
         <div class="mini-cities-column">
            <article class="card mini-city-card" id="city-1">
-             <img src="https://openweathermap.org/img/wn/01d.png" alt="icon">
+             <img src="https://openweathermap.org/img/wn/01d@2x.png" alt="icon">
              <div class="mc-info">
                <span class="mc-name">New York</span>
                <span class="mc-cond">Sunny</span>
@@ -143,7 +156,7 @@
              </div>
            </article>
            <article class="card mini-city-card" id="city-2">
-             <img src="https://openweathermap.org/img/wn/02d.png" alt="icon">
+             <img src="https://openweathermap.org/img/wn/02d@2x.png" alt="icon">
              <div class="mc-info">
                <span class="mc-name">London</span>
                <span class="mc-cond">Bright</span>
@@ -157,7 +170,7 @@
 
         <!-- Bottom Middle Left: Humidity & Air Quality Dark Cards -->
         <div class="dark-cards-container">
-           <article class="card dark-card">
+           <article class="card dark-card" id="humidity-card">
              <h3>Humidity</h3>
              <div class="dark-content">
                <div class="dc-text">
@@ -166,7 +179,7 @@
                <img src="https://openweathermap.org/img/wn/09n@2x.png" alt="rain" class="dark-card-img">
              </div>
            </article>
-           <article class="card dark-card">
+           <article class="card dark-card" id="aqi-card">
              <h3>Air Quality</h3>
              <div class="dark-content" style="align-items: center;">
                <div class="dc-text">
@@ -177,70 +190,44 @@
            </article>
         </div>
 
-        <!-- Bottom Middle Right: Hourly Today Chart -->
+        <!-- Bottom Middle Right: 5-Day Forecast -->
         <article class="card hourly-chart-card">
            <div class="chart-header">
-             <h3>How is the<br>temperature today?</h3>
-             <div class="chart-toggles">
-                <button class="ct-btn active">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                </button>
-                <button class="ct-btn">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12H3M21 6H3M21 18H3"/></svg>
-                </button>
-             </div>
+             <h3>5-Day Forecast</h3>
            </div>
-           <div class="hourly-periods" id="hourly-periods">
-             <!-- Morning -->
-             <div class="period-column">
-               <div class="p-icon-placeholder"><img src="https://openweathermap.org/img/wn/02d.png" alt="icon"></div>
-               <div class="p-temp" id="temp-morning">20°</div>
-               <div class="p-label">Morning</div>
-             </div>
-             <!-- Afternoon -->
-             <div class="period-column highlight">
-               <div class="p-icon-placeholder highlight-icon"><img src="https://openweathermap.org/img/wn/01d.png" alt="icon"></div>
-               <div class="p-temp" id="temp-afternoon">24°</div>
-               <div class="p-label">Afternoon</div>
-             </div>
-             <!-- Evening -->
-             <div class="period-column">
-               <div class="p-icon-placeholder"><img src="https://openweathermap.org/img/wn/03d.png" alt="icon"></div>
-               <div class="p-temp" id="temp-evening">28°</div>
-               <div class="p-label">Evening</div>
-             </div>
-             <!-- Night -->
-             <div class="period-column">
-               <div class="p-icon-placeholder"><img src="https://openweathermap.org/img/wn/01n.png" alt="icon"></div>
-               <div class="p-temp" id="temp-night">22°</div>
-               <div class="p-label">Night</div>
-             </div>
-           </div>
+           <div class="five-day-list" id="five-day-list"></div>
         </article>
 
-        <!-- Bottom Right: Tomorrow Forecast -->
-        <article class="card tomorrow-card" id="tomorrow-card">
+         <!-- Bottom Right: Tomorrow Forecast -->
+         <article class="card tomorrow-card" id="tomorrow-card">
            <div class="tc-header">
              <span class="tc-label">Tomorrow</span>
              <span id="tomorrow-city" class="tc-city">Dhaka, Bangladesh</span>
            </div>
            
            <div class="tc-illustration" id="tomorrow-illustration">
-             <!-- Placeholder for character illustration -->
-             <svg viewBox="0 0 100 150" fill="none" stroke="#2c3e50" stroke-width="2" width="120" style="margin: 0 auto; display: block;">
-               <!-- Person with umbrella simplified -->
-               <path d="M10 50 Q 50 10 90 50 Z" fill="#e67e22"/>
-               <line x1="50" y1="50" x2="50" y2="120" />
-               <circle cx="50" cy="70" r="10" fill="#ecf0f1"/>
-               <path d="M40 90 L 60 90 L 60 140 L 40 140 Z" fill="#34495e"/>
-             </svg>
+              <img id="tomorrow-icon" src="https://openweathermap.org/img/wn/10d@4x.png" alt="Tomorrow Weather" class="tomorrow-weather-img">
            </div>
            
            <div class="tc-footer">
-             <span id="tomorrow-temp" class="tc-temp">25°C</span>
-             <span id="tomorrow-cond" class="tc-cond">Rainy</span>
-           </div>
-        </article>
+              <span id="tomorrow-temp" class="tc-temp">25°C</span>
+              <span id="tomorrow-cond" class="tc-cond">Rainy</span>
+              <div class="tc-details">
+                <div class="tc-detail-item">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                  <span id="tomorrow-humidity">--%</span>
+                </div>
+                <div class="tc-detail-item">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+                  <span id="tomorrow-wind">-- km/h</span>
+                </div>
+                <div class="tc-detail-item">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+                  <span id="tomorrow-feels">Feels --°</span>
+                </div>
+              </div>
+            </div>
+         </article>
 
       </div>
     </main>
