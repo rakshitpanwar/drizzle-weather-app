@@ -1,10 +1,10 @@
-# ⛅️ Premium Weather Dashboard
+# Premium Weather Dashboard
 
 ![Dashboard Preview](https://img.shields.io/badge/Status-Complete-success) ![License](https://img.shields.io/badge/License-MIT-blue)
 
 A visually stunning, desktop-first weather dashboard built with Vanilla HTML, CSS Grid, and JavaScript. This application fetches live, global weather data and maps it onto a complex, modern grid layout to provide deeply visualized insights. Built as a portfolio cornerstone.
 
-## ✨ Features
+## Features
 
 - **Full-Screen CSS Grid Architecture**: A responsive, 12-column layout that elegantly handles multiple complex data visualization cards simultaneously.
 - **Interactive Leaflet Map**: A live, draggable map container integrated with `Leaflet.js` that `flyTo()` animates to searched coordinates, featuring a custom OpenWeatherMap Temperature tile overlay visualizing global thermal hotspots.
@@ -16,7 +16,7 @@ A visually stunning, desktop-first weather dashboard built with Vanilla HTML, CS
 - **Geolocation Support**: Instantly loads weather based on the user's browser coordinates upon launch.
 - **Premium Aesthetics**: Features custom SVG icons, soft mesh gradients, glassmorphic dropdowns, and deep dark-mode contrast cards.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend Core**: HTML5, Vanilla JavaScript (ES6+), CSS3
 - **Mapping Engine**: [Leaflet.js](https://leafletjs.com/)
@@ -25,7 +25,7 @@ A visually stunning, desktop-first weather dashboard built with Vanilla HTML, CS
 - **Typography**: [Nunito Font](https://fonts.google.com/specimen/Nunito)
 - **Deployment**: Configured for instant deployment via GitHub Pages or Vercel.
 
-## 🚀 Getting Started
+## Getting Started
 
 To run this locally, you do not need a complex Node.js setup!
 
@@ -43,7 +43,7 @@ To run this locally, you do not need a complex Node.js setup!
    ```
 4. Open your browser to `http://localhost:3000`.
 
-## 📈 Next Steps (Deployment)
+## Next Steps (Deployment)
 
 This app is vanilla frontend and ready to go live instantly!
 
@@ -61,4 +61,4 @@ npx vercel
 
 ---
 
-_If this project helps you or if you use it in your portfolio, consider giving it a star! ⭐️_
+_If this project helps you or if you use it in your portfolio, consider giving it a star!_
